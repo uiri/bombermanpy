@@ -1,13 +1,13 @@
-#!/usr/bin/python2
-import json, socket, threading.Thread
+import json, socket, threading
 
 class Player:
 
-    def __recv_update():
+    def __recv_update(self):
+        bufsize = 1024
         bufstr = ""
         nextbufstr = ""
         while 1:
-            tmpstr = sock.recv(bufsize)
+            tmpstr = self.sock.recv(bufsize)
             bufstr += tmpstr
             if '\n' not in tmpstr:
                 continue
@@ -16,6 +16,7 @@ class Player:
             nextbufstr = bufarr[1]
             try:
                 self.data = json.loads(bufstr)
+                print self.data
             except ValueError:
                 bufstr = ""
                 nextbufstr = ""
@@ -23,39 +24,38 @@ class Player:
             bufstr = nextbufstr
             nextbufstr = ""
 
-    def __init__(ip, port):
+    def __init__(self, ip, port):
         bufsize = 1024
         bufstr = ""
         nextbufstr = ""
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((ip, port))
-        directions = ["up\n", "left\n", "right\n", "down\n"]
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((ip, int(port)))
         self.data = None
-        thread = Thread()
+        thread = threading.Thread()
         thread.run = self.__recv_update
         thread.start()
         
-    def up():
+    def up(self):
         self.sock.send("up\n")
 
-    def left():
+    def left(self):
         self.sock.send("left\n")
 
-    def down():
+    def down(self):
         self.sock.send("down\n")
 
-    def right():
+    def right(self):
         self.sock.send("right\n")
 
-    def bomb():
+    def bomb(self):
         self.sock.send("bomb\n")
 
-    def coords():
-        if data:
-            return (data['X'], data['Y'])
+    def coords(self):
+        if self.data:
+            return (self.data['X'], self.data['Y'])
         return None
 
-    def board():
-        if data:
-            return data['Board']
+    def board(self):
+        if self.data:
+            return self.data['Board']
         return None
