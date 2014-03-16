@@ -1,4 +1,4 @@
-import json, socket, threading
+import json, socket, threading, sys
 
 class Player:
 
@@ -7,7 +7,11 @@ class Player:
         bufstr = ""
         nextbufstr = ""
         while 1:
-            tmpstr = self.sock.recv(bufsize)
+            try:
+                tmpstr = self.sock.recv(bufsize)
+            except:
+                self.sock = None
+                break
             bufstr += tmpstr
             if '\n' not in tmpstr:
                 continue
@@ -16,7 +20,6 @@ class Player:
             nextbufstr = bufarr[1]
             try:
                 self.data = json.loads(bufstr)
-                print self.data
             except ValueError:
                 bufstr = ""
                 nextbufstr = ""
@@ -25,30 +28,47 @@ class Player:
             nextbufstr = ""
 
     def __init__(self, ip, port):
-        bufsize = 1024
-        bufstr = ""
-        nextbufstr = ""
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((ip, int(port)))
         self.data = None
         thread = threading.Thread()
         thread.run = self.__recv_update
         thread.start()
-        
+
     def up(self):
-        self.sock.send("up\n")
+        try:
+            self.sock.send("up\n")
+        except:
+            self.sock = None
+            self.disconnect()
 
     def left(self):
-        self.sock.send("left\n")
+        try:
+            self.sock.send("left\n")
+        except:
+            self.sock = None
+            self.disconnect()
 
     def down(self):
-        self.sock.send("down\n")
+        try:
+            self.sock.send("down\n")
+        except:
+            self.sock = None
+            self.disconnect()
 
     def right(self):
-        self.sock.send("right\n")
+        try:
+            self.sock.send("right\n")
+        except:
+            self.sock = None
+            self.disconnect()
 
     def bomb(self):
-        self.sock.send("bomb\n")
+        try:
+            self.sock.send("bomb\n")
+        except:
+            self.sock = None
+            self.disconnect()
 
     def coords(self):
         if self.data:
@@ -59,3 +79,6 @@ class Player:
         if self.data:
             return self.data['Board']
         return None
+
+    def disconnect(self):
+        sys.exit(0)
